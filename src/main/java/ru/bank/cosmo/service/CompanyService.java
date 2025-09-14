@@ -1,5 +1,6 @@
 package ru.bank.cosmo.service;
 
+import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
@@ -15,6 +16,7 @@ import ru.bank.cosmo.exception.CompanyNotFoundException;
 import ru.bank.cosmo.model.Company;
 import ru.bank.cosmo.repository.CompanyRepository;
 
+import java.io.InputStream;
 import java.util.Map;
 import java.util.UUID;
 
@@ -94,6 +96,34 @@ public class CompanyService {
                 "status", "deleted",
                 "companyId", companyId.toString()
         );
+    }
+
+    public InputStream getLogoAsStream(Long companyId) {
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new CompanyNotFoundException(companyId));
+
+        if (company.getLogoPath() == null) {
+            throw new IllegalStateException("У компании id=" + companyId + " нет логотипа");
+        }
+
+        try {
+            return minio.getObject(
+                    GetObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(company.getLogoPath())
+                            .build()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Ошибка при получении логотипа из MinIO", e);
+        }
+    }
+
+    public String getLogoContentType(Long companyId) {
+        Company company = companyRepository.findById(companyId)
+                .orElseThrow(() -> new CompanyNotFoundException(companyId));
+
+        return company.getLogoPath() != null ? "image/png" : "application/octet-stream";
+        // тут можно хранить contentType в базе при загрузке и возвращать его
     }
 
     private static @NotNull Company getCompany(CompanyCreateRequestDto request) {

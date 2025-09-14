@@ -2,6 +2,8 @@ package ru.bank.cosmo.controller;
 
 import io.minio.RemoveObjectArgs;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,7 @@ import ru.bank.cosmo.dto.CompanyCreateRequestDto;
 import ru.bank.cosmo.dto.CompanyResponseDto;
 import ru.bank.cosmo.service.CompanyService;
 
+import java.io.InputStream;
 import java.util.Map;
 
 @RestController
@@ -30,6 +33,16 @@ public class CompanyController {
     public ResponseEntity<Map<String, String>> uploadLogo(@PathVariable Long companyId,
                                                           @RequestPart("file") MultipartFile file) {
         return new ResponseEntity<>(companyService.uploadLogo(companyId, file), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{companyId}/logo")
+    public ResponseEntity<Resource> downloadLogo(@PathVariable Long companyId) {
+        InputStream in = companyService.getLogoAsStream(companyId);
+        String contentType = companyService.getLogoContentType(companyId);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .body(new InputStreamResource(in));
     }
 
     @DeleteMapping(value = "/{companyId}/logo")
