@@ -1,6 +1,5 @@
 package ru.bank.cosmo.controller;
 
-import io.minio.RemoveObjectArgs;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
