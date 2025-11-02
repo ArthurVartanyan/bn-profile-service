@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.bank.cosmo.dto.CompanyCreateRequestDto;
+import ru.bank.cosmo.dto.CompanyInfoDto;
 import ru.bank.cosmo.dto.CompanyResponseDto;
 import ru.bank.cosmo.exception.CompanyNotFoundException;
 import ru.bank.cosmo.model.Company;
@@ -88,8 +89,8 @@ public class CompanyService {
                         .object(company.getLogoPath())
                         .build()
         );
-            company.setLogoPath(null);
-            companyRepository.save(company);
+        company.setLogoPath(null);
+        companyRepository.save(company);
 
 
         return Map.of(
@@ -141,5 +142,12 @@ public class CompanyService {
         company.setOkpo(request.getOkpo());
         company.setLegalAddress(request.getLegalAddress());
         return company;
+    }
+
+    public CompanyInfoDto getCompanyInfo(Long id) {
+        var company = companyRepository
+                .findById(id)
+                .orElseThrow(() -> new RuntimeException("Банка с таким ИД нет!"));
+        return new CompanyInfoDto(company.getName());
     }
 }

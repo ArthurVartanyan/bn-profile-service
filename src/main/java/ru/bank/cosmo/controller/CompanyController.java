@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.bank.cosmo.dto.CompanyCreateRequestDto;
+import ru.bank.cosmo.dto.CompanyInfoDto;
 import ru.bank.cosmo.dto.CompanyResponseDto;
 import ru.bank.cosmo.service.CompanyService;
 
@@ -21,6 +22,11 @@ import java.util.Map;
 public class CompanyController {
 
     private final CompanyService companyService;
+
+    @GetMapping(value = "/info/{id}")
+    public ResponseEntity<CompanyInfoDto> getCompanyInfo(@PathVariable Long id) {
+        return new ResponseEntity<>(companyService.getCompanyInfo(id), HttpStatus.OK);
+    }
 
     @PostMapping
     public ResponseEntity<CompanyResponseDto> createCompany(@RequestBody CompanyCreateRequestDto request) {
